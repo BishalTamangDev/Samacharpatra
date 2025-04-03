@@ -35,7 +35,10 @@ class _SettingPageState extends State<SettingPage> {
                   child: Text('GHDS456SDADSA67GYH', style: Theme.of(context).textTheme.bodyLarge),
                 ),
               ),
-              trailing: OutlinedButton(onPressed: () {}, child: const Text("Set Now")),
+              trailing: OutlinedButton(
+                onPressed: () => context.push('/setting/api-key-setup'),
+                child: const Text("Set Now"),
+              ),
               contentPadding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
             ),
 

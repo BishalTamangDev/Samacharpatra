@@ -14,7 +14,6 @@ class LoadingArticleWidget extends StatelessWidget {
           child: Container(color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.8)),
         ),
 
-        // description
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

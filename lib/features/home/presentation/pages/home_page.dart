@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:samacharpatra/features/article/data/models/article_model.dart';
 import 'package:samacharpatra/shared/widgets/loading_article_widget.dart';
+
+import '../../../../shared/widgets/article_widget.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -7,15 +10,21 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Top Headlined in US")),
-      backgroundColor: Theme.of(context).canvasColor,
-      body: SingleChildScrollView(
-        child: ListView.builder(
-          itemCount: 3,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, state) => LoadingArticleWidget(),
-        ),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(floating: true, pinned: false, elevation: 1, title: const Text('Top Headlines in the US')),
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ArticleWidget(articleEntity: ArticleModel.formJson({}).toEntity()),
+                ArticleWidget(articleEntity: ArticleModel.formJson({}).toEntity()),
+                ArticleWidget(articleEntity: ArticleModel.formJson({}).toEntity()),
+              ],
+            ),
+          ),
+          SliverToBoxAdapter(child: Column(children: List.generate(3, (index) => LoadingArticleWidget()))),
+        ],
       ),
     );
   }

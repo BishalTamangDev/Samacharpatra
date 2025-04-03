@@ -8,14 +8,17 @@ class SavedPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Saved Articles")),
-      body: SingleChildScrollView(
-        child: ListView.builder(
-          itemCount: 3,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, state) => LoadingArticleWidget(),
-        ),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            floating: true,
+            pinned: false,
+            elevation: 1,
+            // backgroundColor: Theme.of(context).colorScheme.primary,
+            title: const Text('Saved Articles'),
+          ),
+          SliverToBoxAdapter(child: Column(children: List.generate(3, (index) => LoadingArticleWidget()))),
+        ],
       ),
     );
   }

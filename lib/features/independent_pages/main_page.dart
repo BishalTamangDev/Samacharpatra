@@ -26,7 +26,9 @@ class _MainPageState extends State<MainPage> {
         currentIndex: _currentIndex,
         showSelectedLabels: false,
         showUnselectedLabels: false,
+        iconSize: 26.0,
         type: BottomNavigationBarType.fixed,
+        selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
         elevation: 3,
         backgroundColor: Theme.of(context).canvasColor,
         onTap:
