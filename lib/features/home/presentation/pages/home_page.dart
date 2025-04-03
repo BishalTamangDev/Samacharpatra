@@ -17,9 +17,9 @@ class HomePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ArticleWidget(articleEntity: ArticleModel.formJson({}).toEntity()),
-                ArticleWidget(articleEntity: ArticleModel.formJson({}).toEntity()),
-                ArticleWidget(articleEntity: ArticleModel.formJson({}).toEntity()),
+                ArticleWidget(articleEntity: ArticleModel.fromJson({}).toEntity()),
+                ArticleWidget(articleEntity: ArticleModel.fromJson({}).toEntity()),
+                ArticleWidget(articleEntity: ArticleModel.fromJson({}).toEntity()),
               ],
             ),
           ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:samacharpatra/features/onboarding/widgets/onboarding_option_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../../core/scroll_behaviour/custom_scroll_behaviour.dart';
@@ -13,6 +15,7 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPageState extends State<OnboardingPage> {
   // variables
+  int _currentIndex = 0;
   late PageController _pageController;
 
   final List<Map<String, dynamic>> _features = [
@@ -47,17 +50,35 @@ class _OnboardingPageState extends State<OnboardingPage> {
     {
       'title': 'GET STARTED NOW',
       'description': "You're one step behind exploring new things.",
-      'image': 'assets/animations/get_started.json',
-      'type': 'json',
+      // 'image': 'assets/animations/get_started.json',
+      // 'type': 'json',
+      'image': 'assets/icons/save.png',
+      'type': 'png',
     },
   ];
 
   // functions
   // next page
-  void _nextPage() => _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.linear);
+  Future<void> _nextPage() async {
+    _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.linear);
+    if (_currentIndex == _features.length - 1) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('onboarding_screen_shown', true);
+      if (!mounted) return;
+      context.pushReplacement('/main');
+    } else {
+      setState(() {
+        _currentIndex++;
+      });
+    }
+  }
 
-  // skip
-  void _skip() => _pageController.jumpToPage(_features.length - 1);
+  // set page
+  void _setPage(newIndex) {
+    setState(() {
+      _currentIndex = newIndex;
+    });
+  }
 
   @override
   void initState() {
@@ -76,6 +97,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               child: PageView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 controller: _pageController,
+                onPageChanged: (newIndex) => _setPage(newIndex),
                 children:
                     _features
                         .map(

@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:samacharpatra/features/article/presentation/pages/article_page.dart';
+import 'package:samacharpatra/features/independent_pages/initial_page.dart';
 import 'package:samacharpatra/features/independent_pages/main_page.dart';
 import 'package:samacharpatra/features/independent_pages/page_not_found_page.dart';
 import 'package:samacharpatra/features/onboarding/pages/onboarding_page.dart';
@@ -7,10 +8,10 @@ import 'package:samacharpatra/features/setting/presentation/pages/api_key_setup_
 
 class AppRouter {
   static final GoRouter goRouter = GoRouter(
-    initialLocation: '/main',
+    initialLocation: '/initial',
     routes: [
+      GoRoute(path: '/initial', builder: (context, state) => InitialPage()),
       GoRoute(path: '/main', builder: (context, state) => MainPage()),
-      GoRoute(path: '/initial', builder: (context, state) => PageNotFoundPage()),
       GoRoute(path: '/onboarding', builder: (context, state) => OnboardingPage()),
       GoRoute(path: '/article/:id', builder: (context, state) => ArticlePage()),
       GoRoute(

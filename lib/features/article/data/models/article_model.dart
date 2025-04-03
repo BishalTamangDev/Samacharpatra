@@ -18,7 +18,7 @@ class ArticleModel extends ArticleEntity {
   }
 
   // from json
-  factory ArticleModel.formJson(Map<String, dynamic> json) {
+  factory ArticleModel.fromJson(Map<String, dynamic> json) {
     return ArticleModel(
       source: json['source'],
       author: json['author'],
