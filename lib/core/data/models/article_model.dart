@@ -1,4 +1,4 @@
-import 'package:samacharpatra/features/article/business/entities/article_entity.dart';
+import 'package:samacharpatra/core/business/entities/article_entity.dart';
 
 class ArticleModel extends ArticleEntity {
   ArticleModel({
@@ -20,7 +20,7 @@ class ArticleModel extends ArticleEntity {
   // from json
   factory ArticleModel.fromJson(Map<String, dynamic> json) {
     return ArticleModel(
-      source: json['source'],
+      source: json['source'] ?? {},
       author: json['author'],
       title: json['title'],
       description: json['description'],

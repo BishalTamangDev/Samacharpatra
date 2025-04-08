@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:samacharpatra/features/article/business/entities/article_entity.dart';
-import 'package:samacharpatra/features/article/data/models/article_model.dart';
+import 'package:samacharpatra/core/business/entities/article_entity.dart';
+import 'package:samacharpatra/core/data/models/article_model.dart';
 
 import '../../../errors/failures/failure.dart';
 
@@ -12,7 +12,7 @@ class FakeService {
   // fetch articles
   Future<Either<Failure, List<ArticleEntity>>> fetch() async {
     try {
-      List<ArticleEntity> data = [];
+      List<ArticleEntity> articles = [];
 
       // load json file as string
       final String fileString = await rootBundle.loadString('assets/files/articles.json');
@@ -20,16 +20,13 @@ class FakeService {
       // convert to json format
       var jsonData = jsonDecode(fileString);
 
-      debugPrint("FAKE SOURCE DATA :: $jsonData");
+      List<dynamic> data = jsonData['articles'];
 
-      List<Map<String, dynamic>> articles = jsonData['articles'];
-
-      for (var article in articles) {
-        final ArticleModel articleModel = ArticleModel.fromJson(article);
-        debugPrint(articleModel.toString());
+      for (var datum in data) {
+        final article = ArticleModel.fromJson(datum).toEntity();
+        articles.add(article);
       }
-
-      return Right(data);
+      return Right(articles);
     } catch (e, stackTrace) {
       debugPrint("Error fetching articles :: $e\n$stackTrace");
       return Left(ServerFailure(message: e.toString()));
