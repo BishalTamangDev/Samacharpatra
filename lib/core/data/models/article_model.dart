@@ -2,6 +2,7 @@ import 'package:samacharpatra/core/business/entities/article_entity.dart';
 
 class ArticleModel extends ArticleEntity {
   ArticleModel({
+    required super.id,
     required super.source,
     required super.author,
     required super.title,
@@ -10,6 +11,7 @@ class ArticleModel extends ArticleEntity {
     required super.urlToImage,
     required super.publishedAt,
     required super.content,
+    required super.saved,
   });
 
   @override
@@ -20,6 +22,7 @@ class ArticleModel extends ArticleEntity {
   // from json
   factory ArticleModel.fromJson(Map<String, dynamic> json) {
     return ArticleModel(
+      id: json['id'] ?? 0,
       source: json['source'] ?? {},
       author: json['author'],
       title: json['title'],
@@ -28,12 +31,14 @@ class ArticleModel extends ArticleEntity {
       urlToImage: json['urlToImage'],
       publishedAt: json['publishedAt'],
       content: json['content'],
+      saved: json['saved'] ?? false,
     );
   }
 
   // to json
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'source': source,
       'author': author,
       'title': title,
@@ -42,12 +47,14 @@ class ArticleModel extends ArticleEntity {
       'urlToImage': urlToImage,
       'publishedAt': publishedAt,
       'content': content,
+      'saved': saved,
     };
   }
 
   // from entity
   factory ArticleModel.fromEntity(ArticleEntity entity) {
     return ArticleModel(
+      id: entity.id,
       source: entity.source,
       author: entity.author,
       title: entity.title,
@@ -56,12 +63,14 @@ class ArticleModel extends ArticleEntity {
       urlToImage: entity.urlToImage,
       publishedAt: entity.publishedAt,
       content: entity.content,
+      saved: entity.saved,
     );
   }
 
   // to entity
   ArticleEntity toEntity() {
     return ArticleEntity(
+      id: id,
       source: source,
       author: author,
       title: title,
@@ -70,6 +79,7 @@ class ArticleModel extends ArticleEntity {
       urlToImage: urlToImage,
       publishedAt: publishedAt,
       content: content,
+      saved: saved,
     );
   }
 }

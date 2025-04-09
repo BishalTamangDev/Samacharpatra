@@ -6,9 +6,6 @@ sealed class SavedState {}
 // initial state
 final class SavedInitial extends SavedState {}
 
-// action state
-final class SavedActionState extends SavedState {}
-
 // loading
 final class SavedLoadingState extends SavedState {}
 
@@ -24,6 +21,9 @@ final class SavedErrorState extends SavedState {}
 
 // empty
 final class SavedEmptyState extends SavedState {}
+
+// action state
+final class SavedActionState extends SavedState {}
 
 // navigate to view page
 final class SavedViewNavigateActionState extends SavedActionState {

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:samacharpatra/features/search/presentation/bloc/search_bloc.dart';
-import 'package:samacharpatra/shared/widgets/custom_alert_dialog_single_option_widget.dart';
+import 'package:samacharpatra/features/search/presentation/widgets/search_empty_widget.dart';
+import 'package:samacharpatra/features/search/presentation/widgets/search_error_widget.dart';
+import 'package:samacharpatra/features/search/presentation/widgets/search_initial_widget.dart';
+import 'package:samacharpatra/features/search/presentation/widgets/search_invalid_api_key_widget.dart';
+import 'package:samacharpatra/features/search/presentation/widgets/search_searching_widget.dart';
+
+import '../../../../shared/widgets/article_widget.dart';
+import '../bloc/search_bloc.dart';
+import '../widgets/search_api_key_not_set_widget.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -46,7 +53,7 @@ class _SearchPageState extends State<SearchPage> {
           onSubmitted: (title) {
             FocusScope.of(context).unfocus();
             if (title != '') {
-              context.read<SearchBloc>().add(SearchArticleEvent(searchTitle: title));
+              context.read<SearchBloc>().add(SearchArticleEvent(title));
             }
           },
         ),
@@ -55,74 +62,36 @@ class _SearchPageState extends State<SearchPage> {
         listenWhen: (previous, current) => current is SearchActionState,
         buildWhen: (previous, current) => current is! SearchActionState,
         listener: (context, state) {
-          if (state is SearchKeyErrorActionState) {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return CustomAlertDialogSingleOptionWidget(
-                  title: "Issue in API Key",
-                  description: "An error occurred with your API key.",
-                  option: "Change Now",
-                  callBack: () {
-                    context.pop();
-                    context.read<SearchBloc>().add(SearchNavigateApiSetupPage());
-                  },
-                );
-              },
-            );
-          } else if (state is SearchNavigateApiSetupPage) {
+          if (state is SearchApiKeySetupNavigateActionState) {
             context.push('/setting/api-key-setup');
-          } else if (state is SearchNetworkErrorActionState) {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return CustomAlertDialogSingleOptionWidget(
-                  title: "Network Error",
-                  description: "Check your network connection and try again.",
-                  option: "Okay",
-                  callBack: () => context.pop(),
-                );
-              },
-            );
           } else if (state is SearchResetActionState) {
             searchController.clear();
           }
         },
         builder: (context, state) {
-          switch (state.runtimeType) {
-            case SearchInitial:
-              return const Padding(
-                padding: EdgeInsets.all(32.0),
-                child: Column(
-                  children: [
-                    Center(child: Opacity(opacity: 0.6, child: Text("Feel free to search the article you like."))),
-                  ],
-                ),
-              );
-            case SearchedState:
-              final currentState = state as SearchedState;
-              return Text("${state.articles}");
-            case SearchEmptyState:
-              return const Padding(
-                padding: EdgeInsets.all(32.0),
-                child: Column(children: [Center(child: Opacity(opacity: 0.6, child: Text("No articles found!")))]),
-              );
-            case SearchErrorState:
-              return const Padding(
-                padding: EdgeInsets.all(32.0),
-                child: Column(children: [Center(child: Opacity(opacity: 0.6, child: Text("An error occurred!")))]),
+          switch (state) {
+            case SearchInitial():
+              return SearchInitialWidget();
+            case SearchingState():
+              return SearchSearchingWidget(searchTitle: state.searchTitle);
+            case SearchInvalidApiKeyState():
+              return SearchInvalidApiKeyWidget();
+            case SearchEmptyState():
+              return SearchEmptyWidget();
+            case SearchApiKeyNotSetState():
+              return SearchApiKeyNotSetWidget();
+            case SearchErrorState():
+              return SearchErrorWidget();
+            case SearchedState():
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: state.articles.length,
+                itemBuilder: (context, index) {
+                  return ArticleWidget(articleEntity: state.articles[index]);
+                },
               );
             default:
-              return const Padding(
-                padding: EdgeInsets.all(32.0),
-                child: Column(
-                  spacing: 16.0,
-                  children: [
-                    Center(child: CircularProgressIndicator()),
-                    Center(child: Opacity(opacity: 0.6, child: Text("Searching..."))),
-                  ],
-                ),
-              );
+              return const Center(child: CircularProgressIndicator());
           }
         },
       ),

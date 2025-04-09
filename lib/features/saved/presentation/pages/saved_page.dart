@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:samacharpatra/features/saved/presentation/bloc/saved_bloc.dart';
+import 'package:samacharpatra/features/saved/presentation/widget/saved_empty_widget.dart';
+import 'package:samacharpatra/features/saved/presentation/widget/saved_error_widget.dart';
 
 import '../../../../shared/widgets/loading_article_widget.dart';
 
@@ -24,42 +26,15 @@ class SavedPage extends StatelessWidget {
                 }
               },
               builder: (context, state) {
-                switch (state.runtimeType) {
-                  case SavedLoadingState:
-                    return Column(children: List.generate(3, (index) => LoadingArticleWidget()));
-                  case SavedLoadedState:
-                    final currentState = state as SavedLoadedState;
-                    return Text("${currentState.articles}");
-                  case SavedEmptyState:
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height - 140,
-                      child: const Column(
-                        spacing: 16.0,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.hourglass_empty_outlined, color: Colors.red),
-                          Opacity(opacity: 0.6, child: Text("You haven't saved any article yet!")),
-                        ],
-                      ),
-                    );
-                  case SavedErrorState:
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height - 140,
-                      child: Column(
-                        spacing: 16.0,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.error_outline_rounded, color: Colors.red),
-                          const Opacity(opacity: 0.6, child: Text("An error occurred!")),
-                          OutlinedButton(
-                            onPressed: () => context.read<SavedBloc>().add(SavedFetchEvent()),
-                            child: const Text("Retry"),
-                          ),
-                        ],
-                      ),
-                    );
+                switch (state) {
+                  case SavedLoadedState():
+                    return Text("${state.articles}");
+                  case SavedEmptyState():
+                    return SavedEmptyWidget();
+                  case SavedErrorState():
+                    return SavedErrorWidget();
                   default:
-                    return CircularProgressIndicator();
+                    return Column(children: List.generate(3, (index) => LoadingArticleWidget()));
                 }
               },
             ),

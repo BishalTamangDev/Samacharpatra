@@ -23,20 +23,13 @@ class _SettingPageState extends State<SettingPage> {
         listenWhen: (previous, current) => current is SettingActionState,
         buildWhen: (previous, current) => current is! SettingActionState,
         listener: (context, state) {
-          switch (state.runtimeType) {
-            case SettingApiSetupNavigateActionState:
-              context.push('/setting/api-key-setup');
-              break;
-            default:
-              debugPrint("Setting listener :: Unhandled state");
+          if (state is SettingApiSetupNavigateActionState) {
+            context.push('/setting/api-key-setup');
           }
         },
         builder: (context, state) {
-          debugPrint("Setting builder :: $state");
-
-          switch (state.runtimeType) {
-            case SettingLoadedState:
-              final currentState = state as SettingLoadedState;
+          switch (state) {
+            case SettingLoadedState():
               return SingleChildScrollView(
                 child: Column(
                   children: [
@@ -51,14 +44,14 @@ class _SettingPageState extends State<SettingPage> {
                         child: Opacity(
                           opacity: 0.6,
                           child: Text(
-                            currentState.apiKey != '' ? currentState.apiKey : "You haven't set the api key",
+                            state.apiKey != '' ? state.apiKey : "You haven't set the api key",
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ),
                       ),
                       trailing: OutlinedButton(
                         onPressed: () => context.read<SettingBloc>().add(SettingApiSetupEvent()),
-                        child: Text(currentState.apiKey != '' ? "Change Key" : "Set Now"),
+                        child: Text(state.apiKey != '' ? "Change Key" : "Set Now"),
                       ),
                       contentPadding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
                     ),
@@ -66,9 +59,8 @@ class _SettingPageState extends State<SettingPage> {
                     BlocBuilder<ThemeBloc, ThemeState>(
                       buildWhen: (previous, current) => current is! ThemeActionState,
                       builder: (context, state) {
-                        switch (state.runtimeType) {
-                          case ThemeLoadedState:
-                            final themeState = state as ThemeLoadedState;
+                        switch (state) {
+                          case ThemeLoadedState():
                             return Column(
                               children: [
                                 // theme source
@@ -82,7 +74,7 @@ class _SettingPageState extends State<SettingPage> {
                                     child: Opacity(
                                       opacity: 0.6,
                                       child: Text(
-                                        themeState.themeSource == ThemeSourceEnum.system
+                                        state.themeSource == ThemeSourceEnum.system
                                             ? "Device theme is active."
                                             : "Custom theme is active",
                                         style: Theme.of(context).textTheme.bodyLarge,
@@ -90,7 +82,7 @@ class _SettingPageState extends State<SettingPage> {
                                     ),
                                   ),
                                   trailing: DropdownButton(
-                                    value: themeState.themeSource,
+                                    value: state.themeSource,
                                     underline: const SizedBox.shrink(),
                                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                     items: [
@@ -103,7 +95,7 @@ class _SettingPageState extends State<SettingPage> {
                                     ],
                                     onChanged:
                                         (newValue) => context.read<ThemeBloc>().add(
-                                          ThemeUpdateEvent(themeSource: newValue!, darkMode: themeState.darkMode),
+                                          ThemeUpdateEvent(themeSource: newValue!, darkMode: state.darkMode),
                                         ),
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
@@ -111,7 +103,7 @@ class _SettingPageState extends State<SettingPage> {
 
                                 // theme mode
                                 Opacity(
-                                  opacity: themeState.themeSource == ThemeSourceEnum.system ? 0.5 : 1,
+                                  opacity: state.themeSource == ThemeSourceEnum.system ? 0.5 : 1,
                                   child: ListTile(
                                     title: Text(
                                       "Dark Mode",
@@ -120,12 +112,12 @@ class _SettingPageState extends State<SettingPage> {
                                       ).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600),
                                     ),
                                     trailing: Switch(
-                                      value: themeState.darkMode,
+                                      value: state.darkMode,
                                       activeColor: Theme.of(context).colorScheme.primary,
                                       onChanged: (newValue) {
-                                        if (themeState.themeSource == ThemeSourceEnum.custom) {
+                                        if (state.themeSource == ThemeSourceEnum.custom) {
                                           context.read<ThemeBloc>().add(
-                                            ThemeUpdateEvent(themeSource: themeState.themeSource, darkMode: newValue),
+                                            ThemeUpdateEvent(themeSource: state.themeSource, darkMode: newValue),
                                           );
                                         }
                                       },
@@ -135,8 +127,9 @@ class _SettingPageState extends State<SettingPage> {
                                 ),
                               ],
                             );
+                          case ThemeInitial():
+                            return const Center(child: CircularProgressIndicator());
                         }
-                        return CircularProgressIndicator();
                       },
                     ),
 

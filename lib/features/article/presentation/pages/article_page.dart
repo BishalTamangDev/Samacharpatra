@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/business/entities/article_entity.dart';
 
@@ -56,6 +57,17 @@ class _ArticlePageState extends State<ArticlePage> {
             floating: false,
             pinned: false,
             expandedHeight: MediaQuery.of(context).size.width * (9 / 16),
+            automaticallyImplyLeading: false,
+            leading: Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 8.0),
+              child: CircleAvatar(
+                backgroundColor: Color.fromRGBO(255, 255, 255, 0.8),
+                child: IconButton(
+                  onPressed: () => context.pop(),
+                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+                ),
+              ),
+            ),
             flexibleSpace: FlexibleSpaceBar(
               background: AspectRatio(
                 aspectRatio: 16 / 9,

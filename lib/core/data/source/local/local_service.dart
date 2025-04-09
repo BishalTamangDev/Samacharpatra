@@ -2,7 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart';
 import 'package:samacharpatra/core/business/entities/article_entity.dart';
-import 'package:samacharpatra/core/errors/failures/failure.dart';
+import 'package:samacharpatra/core/data/models/article_model.dart';
+import 'package:samacharpatra/core/errors/failures/failures.dart';
 import 'package:sqflite/sqflite.dart';
 
 class LocalService {
@@ -47,9 +48,7 @@ class LocalService {
             )
           ''';
 
-          bool articleTableCreated = await databasePath.rawQuery(query).then((_) => true).catchError((e) {
-            throw Exception(e);
-          });
+          await databasePath.rawQuery(query);
         },
       );
     } catch (e, stackTrace) {
@@ -67,7 +66,6 @@ class LocalService {
   // fetch articles
   Future<Either<Failure, List<ArticleEntity>>> fetchArticles() async {
     try {
-      final List<ArticleEntity> articles = [];
       final db = await getDatabase();
 
       final String query = '''
@@ -76,13 +74,20 @@ class LocalService {
 
       final data = await db.rawQuery(query);
 
-      debugPrint("Local Data :: $data");
+      final List<ArticleEntity> articles = data.map((datum) => ArticleModel.fromJson(datum).toEntity()).toList();
+
+      debugPrint("Saved articles :: $data");
 
       return Right(articles);
     } catch (e, stackTrace) {
-      debugPrint("Error fetching local data :: $e\n$stackTrace");
-      return Left(ClientFailure(message: "Couldn't fetch articles."));
+      debugPrint("Error fetching saved articles :: $e\n$stackTrace");
+      return Left(LocalStorageFailure());
     }
+  }
+
+  // search article if saved
+  Future<bool> checkPresence(String url) async {
+    return false;
   }
 
   // save article

@@ -7,7 +7,7 @@ sealed class SearchEvent {}
 final class SearchArticleEvent extends SearchEvent {
   final String searchTitle;
 
-  SearchArticleEvent({required this.searchTitle});
+  SearchArticleEvent(this.searchTitle);
 }
 
 // clear
@@ -17,4 +17,4 @@ final class SearchResetEvent extends SearchEvent {}
 final class SearchLoadMoreEvent extends SearchEvent {}
 
 // navigate to api setup page
-final class SearchNavigateApiSetupPage extends SearchEvent {}
+final class SearchApiSetupNavigateEvent extends SearchEvent {}

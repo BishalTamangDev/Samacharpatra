@@ -6,50 +6,46 @@ import 'package:flutter/services.dart';
 import 'package:samacharpatra/core/business/entities/article_entity.dart';
 import 'package:samacharpatra/core/data/models/article_model.dart';
 
-import '../../../errors/failures/failure.dart';
+import '../../../errors/failures/failures.dart';
 
 class FakeService {
   // fetch articles
   Future<Either<Failure, List<ArticleEntity>>> fetch() async {
     try {
-      List<ArticleEntity> articles = [];
-
       // load json file as string
       final String fileString = await rootBundle.loadString('assets/files/articles.json');
 
       // convert to json format
-      var jsonData = jsonDecode(fileString);
+      final jsonData = jsonDecode(fileString);
 
-      List<dynamic> data = jsonData['articles'];
+      final List<dynamic> data = jsonData['articles'];
 
-      for (var datum in data) {
-        final article = ArticleModel.fromJson(datum).toEntity();
-        articles.add(article);
-      }
+      final List<ArticleEntity> articles = data.map((datum) => ArticleModel.fromJson(datum).toEntity()).toList();
+
       return Right(articles);
     } catch (e, stackTrace) {
       debugPrint("Error fetching articles :: $e\n$stackTrace");
-      return Left(ServerFailure(message: e.toString()));
+      return Left(UnknownFailure());
     }
   }
 
   // search articles
   Future<Either<Failure, List<ArticleEntity>>> search(String title) async {
     try {
-      List<ArticleEntity> articles = [];
-
       // load json file as string
       final String fileString = await rootBundle.loadString('assets/files/articles.json');
 
       // convert to json format
-      var jsonData = jsonDecode(fileString);
+      final jsonData = jsonDecode(fileString);
 
-      debugPrint("FAKE SOURCE DATA :: $jsonData");
+      final List<dynamic> data = jsonData['articles'];
+
+      final List<ArticleEntity> articles = data.map((datum) => ArticleModel.fromJson(datum).toEntity()).toList();
 
       return Right(articles);
     } catch (e, stackTrace) {
       debugPrint("Error fetching articles :: $e\n$stackTrace");
-      return Left(ServerFailure(message: 'WIP'));
+      return Left(UnknownFailure());
     }
   }
 }

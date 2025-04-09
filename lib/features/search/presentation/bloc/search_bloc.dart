@@ -1,5 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:samacharpatra/core/errors/failures/failures.dart';
+import 'package:samacharpatra/features/search/business/usecases/search_usecase.dart';
+import 'package:samacharpatra/features/search/data/repositories/search_repository_impl.dart';
 
 import '../../../../core/business/entities/article_entity.dart';
 
@@ -11,21 +14,47 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<SearchEvent>((event, emit) {});
     on<SearchArticleEvent>(_searchArticleEvent);
     on<SearchResetEvent>(_searchResetEvent);
+    on<SearchApiSetupNavigateEvent>(_searchApiSetupNavigateEvent);
   }
 
   // search article
   Future<void> _searchArticleEvent(event, emit) async {
-    emit(SearchingState());
+    emit(SearchingState(event.searchTitle));
     debugPrint("Searching for ${event.searchTitle}");
 
+    final SearchRepositoryImpl searchRepository = SearchRepositoryImpl();
+    final SearchUseCase searchUseCase = SearchUseCase(searchRepository);
+
+    // search article
+    final response = await searchUseCase.call(event.searchTitle);
     debugPrint("Search completed");
-    emit(SearchedState(articles: []));
 
-    final List<ArticleEntity> articles = [];
-
-    if (articles.isEmpty) {
-      emit(SearchEmptyState());
-    }
+    response.fold(
+      (failure) {
+        debugPrint("Search Failure :: $failure");
+        if (failure is ApiKeyNotSetFailure) {
+          // api key not set
+          emit(SearchApiKeyNotSetState());
+        } else if (failure is UnauthorizedApiKeyFailure) {
+          // invalid api key
+          emit(SearchInvalidApiKeyState());
+        } else if (failure is NetworkFailure) {
+          // network failure
+        } else if (failure is ServerFailure) {
+          // server failure
+        } else {
+          // unexpected failure
+          emit(SearchErrorState());
+        }
+      },
+      (articles) {
+        if (articles.isEmpty) {
+          emit(SearchEmptyState());
+        } else {
+          emit(SearchedState(articles: articles));
+        }
+      },
+    );
 
     // emit(SearchEmptyState());
     // emit(SearchErrorState());
@@ -37,5 +66,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   Future<void> _searchResetEvent(SearchResetEvent event, Emitter<SearchState> emit) async {
     emit(SearchResetActionState());
     emit(SearchInitial());
+  }
+
+  // navigate to api setup page
+  Future<void> _searchApiSetupNavigateEvent(SearchApiSetupNavigateEvent event, Emitter<SearchState> emit) async {
+    emit(SearchApiKeySetupNavigateActionState());
   }
 }

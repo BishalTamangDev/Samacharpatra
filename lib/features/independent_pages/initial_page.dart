@@ -16,7 +16,6 @@ class _InitialPageState extends State<InitialPage> {
     final prefs = await SharedPreferences.getInstance();
     final bool onboardingShown = prefs.getBool('onboarding_screen_shown') ?? false;
     if (!mounted) return;
-    FlutterNativeSplash.remove();
     if (onboardingShown) {
       context.pushReplacement('/main');
     } else {
@@ -29,11 +28,12 @@ class _InitialPageState extends State<InitialPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkData();
+      FlutterNativeSplash.remove();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text("Loading...")));
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

@@ -1,4 +1,5 @@
 class ArticleEntity {
+  int? id;
   Map<String, dynamic>? source; // id & name
   String? author;
   String? title;
@@ -7,8 +8,10 @@ class ArticleEntity {
   String? urlToImage;
   String? publishedAt;
   String? content;
+  bool? saved;
 
   ArticleEntity({
+    required this.id,
     required this.source,
     required this.author,
     required this.title,
@@ -17,5 +20,6 @@ class ArticleEntity {
     required this.urlToImage,
     required this.publishedAt,
     required this.content,
+    required this.saved,
   });
 }

@@ -5,11 +5,12 @@ sealed class SearchState {}
 
 final class SearchInitial extends SearchState {}
 
-// action state
-final class SearchActionState extends SearchState {}
-
 // searching
-final class SearchingState extends SearchState {}
+final class SearchingState extends SearchState {
+  final String searchTitle;
+
+  SearchingState(this.searchTitle);
+}
 
 // searched
 final class SearchedState extends SearchState {
@@ -24,11 +25,20 @@ final class SearchEmptyState extends SearchState {}
 // error
 final class SearchErrorState extends SearchState {}
 
-// network issue :: show dialog box
-final class SearchNetworkErrorActionState extends SearchActionState {}
+// api key not set
+final class SearchApiKeyNotSetState extends SearchState {}
 
-// api key issue action state :: show dialog box
-final class SearchKeyErrorActionState extends SearchActionState {}
+// invalid api key
+final class SearchInvalidApiKeyState extends SearchState {}
+
+// network issue :: show dialog box
+final class SearchNetworkErrorState extends SearchState {}
+
+// action state
+final class SearchActionState extends SearchState {}
 
 // reset search action state
 final class SearchResetActionState extends SearchActionState {}
+
+// navigate to api key setup page
+final class SearchApiKeySetupNavigateActionState extends SearchActionState {}

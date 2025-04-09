@@ -22,16 +22,35 @@ final class HomeEmptyState extends HomeState {}
 // error state
 final class HomeErrorState extends HomeState {}
 
+// api key not set
+final class HomeApiKeyNotSetState extends HomeState {}
+
+// invalid api key
+final class HomeUnauthorizedApiKeyState extends HomeState {}
+
 // no network
-final class HomeNoNetworkState extends HomeState {}
+final class HomeNetworkIssueState extends HomeState {
+  final String message;
+
+  HomeNetworkIssueState(this.message);
+}
 
 // action state
 @immutable
 sealed class HomeActionState extends HomeState {}
 
+// load more
+final class HomeLoadMoreActionState extends HomeActionState {}
+
+// stop load more
+final class HomeStopLoadMoreActionState extends HomeActionState {}
+
 // view article :: navigate to article page
 final class HomeViewArticleNavigateActionState extends HomeActionState {
   final ArticleEntity articleEntity;
 
-  HomeViewArticleNavigateActionState({required this.articleEntity});
+  HomeViewArticleNavigateActionState(this.articleEntity);
 }
+
+// navigate to api setup page
+final class HomeApiSetupNavigateActionState extends HomeActionState {}

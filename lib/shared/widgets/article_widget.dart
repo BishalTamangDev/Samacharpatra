@@ -25,16 +25,10 @@ class _ArticleWidgetState extends State<ArticleWidget> {
     });
   }
 
-  // check if the article is available offline
-  _checkOfflinePresence() {
-    final bool present = true;
-    _setOfflinePresence(present);
-  }
-
   @override
   void initState() {
     super.initState();
-    _checkOfflinePresence();
+    _offlinePresence = widget.articleEntity.saved;
   }
 
   @override
@@ -47,7 +41,7 @@ class _ArticleWidgetState extends State<ArticleWidget> {
     return InkWell(
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
-      onTap: () => context.read<HomeBloc>().add(HomeViewArticleNavigateEvent(articleEntity: widget.articleEntity)),
+      onTap: () => context.read<HomeBloc>().add(HomeViewArticleNavigateEvent(widget.articleEntity)),
       child: Column(
         children: [
           AspectRatio(
