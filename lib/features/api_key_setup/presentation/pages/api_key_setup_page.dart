@@ -130,106 +130,108 @@ class _ApiKeySetupPageState extends State<ApiKeySetupPage> {
           case ApiKeyErrorState():
             return const ApiKeyErrorWidget();
           case ApiKeyLoadedState():
-            return Scaffold(
-              appBar: AppBar(title: const Text("API Key Setup")),
-              body: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    spacing: 20.0,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // initial api key
-                      state.initialApiKey == ''
-                          ? Opacity(
-                            opacity: 0.9,
-                            child: Text(
-                              "You haven't set your API key.",
-                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.red),
-                            ),
-                          )
-                          : Row(
-                            children: [
-                              Expanded(
-                                child: Opacity(
-                                  opacity: 0.6,
-                                  child: Text(
-                                    "Your API key\n${state.initialApiKey}",
-                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
+            return SafeArea(
+              child: Scaffold(
+                appBar: AppBar(title: const Text("API Key Setup")),
+                body: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      spacing: 20.0,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // initial api key
+                        state.initialApiKey == ''
+                            ? Opacity(
+                              opacity: 0.9,
+                              child: Text(
+                                "You haven't set your API key.",
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.red),
+                              ),
+                            )
+                            : Row(
+                              children: [
+                                Expanded(
+                                  child: Opacity(
+                                    opacity: 0.6,
+                                    child: Text(
+                                      "Your API key\n${state.initialApiKey}",
+                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              OutlinedButton(onPressed: _deleteApiKey, child: const Text("Delete")),
-                            ],
-                          ),
+                                OutlinedButton(onPressed: _deleteApiKey, child: const Text("Delete")),
+                              ],
+                            ),
 
-                      // api key field
-                      TextField(
-                        controller: apiKeyController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter your api key',
-                          contentPadding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
-                          suffixIcon: IconButton(
-                            onPressed:
-                                () => setState(() {
-                                  apiKeyController.text = "";
-                                }),
-                            icon: const Icon(Icons.close),
+                        // api key field
+                        TextField(
+                          controller: apiKeyController,
+                          decoration: InputDecoration(
+                            hintText: 'Enter your api key',
+                            contentPadding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+                            suffixIcon: IconButton(
+                              onPressed:
+                                  () => setState(() {
+                                    apiKeyController.text = "";
+                                  }),
+                              icon: const Icon(Icons.close),
+                            ),
                           ),
+                        ),
+
+                        // progress indicator
+                        Visibility(
+                          visible: _updating,
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: Center(
+                              child: Column(
+                                spacing: 16.0,
+                                children: [CircularProgressIndicator(), Opacity(opacity: 0.6, child: Text("Processing"))],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                bottomNavigationBar: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    spacing: 16.0,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // note
+                      RichText(
+                        text: TextSpan(
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          children: [
+                            const TextSpan(text: "Don't have API key? Get it from "),
+                            TextSpan(
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.blue),
+                              text: "newsapi.org",
+                            ),
+                          ],
                         ),
                       ),
 
-                      // progress indicator
-                      Visibility(
-                        visible: _updating,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
-                          child: Center(
-                            child: Column(
-                              spacing: 16.0,
-                              children: [CircularProgressIndicator(), Opacity(opacity: 0.6, child: Text("Processing"))],
-                            ),
+                      // set button
+                      SizedBox(
+                        height: 45.0,
+                        width: MediaQuery.of(context).size.width,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: ElevatedButton(
+                            onPressed: () => _add(state.initialApiKey, apiKeyController.text),
+                            child: state.initialApiKey == '' ? const Text("Add Key") : const Text('Update Key'),
                           ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-              bottomNavigationBar: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  spacing: 16.0,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // note
-                    RichText(
-                      text: TextSpan(
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        children: [
-                          const TextSpan(text: "Don't have API key? Get it from "),
-                          TextSpan(
-                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.blue),
-                            text: "newsapi.org",
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // set button
-                    SizedBox(
-                      height: 45.0,
-                      width: MediaQuery.of(context).size.width,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: ElevatedButton(
-                          onPressed: () => _add(state.initialApiKey, apiKeyController.text),
-                          child: state.initialApiKey == '' ? const Text("Add Key") : const Text('Update Key'),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ),
             );

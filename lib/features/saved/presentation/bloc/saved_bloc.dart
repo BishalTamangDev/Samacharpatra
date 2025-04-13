@@ -23,6 +23,8 @@ class SavedBloc extends Bloc<SavedEvent, SavedState> {
   Future<void> _savedFetchEvent(SavedFetchEvent event, Emitter<SavedState> emit) async {
     emit(SavedLoadingState());
 
+    await Future.delayed(Duration(milliseconds: 100));
+
     final SavedRepositoryImpl savedRepository = SavedRepositoryImpl();
     final FetchAllArticlesUseCase fetchAllArticlesUseCase = FetchAllArticlesUseCase(savedRepository);
 

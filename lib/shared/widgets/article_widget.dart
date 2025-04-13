@@ -10,9 +10,11 @@ import 'package:samacharpatra/features/home/presentation/bloc/home_bloc.dart';
 import 'package:samacharpatra/features/saved/presentation/bloc/saved_bloc.dart';
 
 class ArticleWidget extends StatefulWidget {
-  const ArticleWidget({super.key, required this.articleEntity});
+  const ArticleWidget({super.key, required this.articleEntity, this.isForSavedArticle = false});
 
   final ArticleEntity articleEntity;
+
+  final bool isForSavedArticle;
 
   @override
   State<ArticleWidget> createState() => _ArticleWidgetState();
@@ -49,7 +51,9 @@ class _ArticleWidgetState extends State<ArticleWidget> {
         setState(() {
           _saved = true;
         });
-        context.read<SavedBloc>().add(SavedFetchEvent());
+        if (!widget.isForSavedArticle) {
+          context.read<SavedBloc>().add(SavedFetchEvent());
+        }
         break;
       case ArticleStatusEnum.deleted:
       case ArticleStatusEnum.alreadyDeleted:
@@ -58,8 +62,9 @@ class _ArticleWidgetState extends State<ArticleWidget> {
         setState(() {
           _saved = false;
         });
-        if (!mounted) return;
-        context.read<SavedBloc>().add(SavedFetchEvent());
+        if (!widget.isForSavedArticle) {
+          context.read<SavedBloc>().add(SavedFetchEvent());
+        }
     }
   }
 

@@ -44,7 +44,7 @@ class SavedPage extends StatelessWidget {
                 case SavedLoadedState():
                   return SliverList(
                     delegate: SliverChildListDelegate([
-                      ...state.articles.map((article) => ArticleWidget(articleEntity: article)),
+                      ...state.articles.map((article) => ArticleWidget(articleEntity: article, isForSavedArticle: true)),
                     ]),
                   );
                 case SavedEmptyState():
