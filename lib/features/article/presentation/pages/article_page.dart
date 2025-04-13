@@ -1,8 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:samacharpatra/features/article/presentation/bloc/article_bloc.dart';
+import 'package:samacharpatra/features/article/presentation/widgets/article_error_widget.dart';
+import 'package:samacharpatra/features/article/presentation/widgets/article_loading_widget.dart';
+import 'package:samacharpatra/features/saved/presentation/bloc/saved_bloc.dart';
+import 'package:samacharpatra/shared/widgets/custom_snackbar_widget.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/business/entities/article_entity.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/functions/app_functions.dart';
 
 class ArticlePage extends StatefulWidget {
   const ArticlePage({super.key, required this.article});
@@ -14,177 +24,221 @@ class ArticlePage extends StatefulWidget {
 }
 
 class _ArticlePageState extends State<ArticlePage> {
-  // variable
-  final String title =
-      "Larry Fink Says Bitcoin Could Replace the Dollar as the World's Reserve Currency Because of National Debt";
-  final String description =
-      "With America's national debt sitting comfortably over the \$36.2 trillion mark, BlackRock CEO Larry Fink is warning the burden could one day be the reason the dollar is dethroned as the reserve currency of the world.\n From a report: He argues that decentralize…";
-  final String content =
-      "As long as everyday people can't go into a marketplace and effortlessly, ubiquitously use it, that's not gonna happen.\r\nEven if it did become the world's currency, imagine the power consumption neede… [+111 chars]";
-  final String author = "msmash";
-  final String sourceName = "Slashdot.org";
-
   // variables
-  bool? _offlinePresence;
-
-  // function
-  // save or un-save article
-  void _setOfflinePresence(bool present) {
-    setState(() {
-      _offlinePresence = present;
-    });
-  }
-
-  // check if the article is available offline
-  void _checkOfflinePresence() {
-    final bool present = true;
-    _setOfflinePresence(present);
-  }
-
-  @override
-  void initState() {
-    debugPrint("Article page :: ${widget.article.url}");
-    super.initState();
-    _checkOfflinePresence();
-  }
+  bool _saved = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            floating: false,
-            pinned: false,
-            expandedHeight: MediaQuery.of(context).size.width * (9 / 16),
-            automaticallyImplyLeading: false,
-            leading: Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 8.0),
-              child: CircleAvatar(
-                backgroundColor: Color.fromRGBO(255, 255, 255, 0.8),
-                child: IconButton(
-                  onPressed: () => context.pop(),
-                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+    return BlocConsumer<ArticleBloc, ArticleState>(
+      listenWhen: (previous, current) => current is ArticleActionState,
+      buildWhen: (previous, current) => current is! ArticleActionState,
+      listener: (context, state) async {
+        if (state is ArticleReadMoreActionState) {
+          if (state.response) {
+            if (!await launchUrl(state.url)) {
+              if (!context.mounted) return;
+              showCustomSnackbar(context: context, message: "The link is currently not available.");
+            }
+          } else {
+            showCustomSnackbar(context: context, message: "The link is currently not available.");
+          }
+        } else if (state is ArticleShareActionState) {
+          if (state.response) {
+            await Share.share(state.url, subject: state.title);
+          } else {
+            showCustomSnackbar(
+              context: context,
+              message: "Cannot share this article! The link is currently now available.",
+            );
+          }
+        } else if (state is ArticleToggleActionState) {
+          if (!mounted) return;
+          setState(() {
+            _saved = state.status == ArticleStatusEnum.saved;
+          });
+          context.read<SavedBloc>().add(SavedFetchEvent());
+        }
+      },
+      builder: (context, state) {
+        switch (state) {
+          case ArticleLoadedState():
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text("Article Details"),
+                leading: Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 8.0),
+                  child: IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back_ios_new)),
                 ),
-              ),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Container(
-                  color: Theme.of(context).colorScheme.secondary,
-                  child: CachedNetworkImage(
-                    imageUrl: widget.article.urlToImage!,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) => Image.asset('assets/images/newspaper.jpg', fit: BoxFit.cover),
+                actionsPadding: const EdgeInsets.only(right: 16.0),
+                actions: [
+                  InkWell(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    onTap:
+                        () => context.read<ArticleBloc>().add(
+                          ArticleShareEvent(title: widget.article.title ?? '-', url: widget.article.url ?? '-'),
+                        ),
+                    child: const Icon(Icons.share),
                   ),
-                ),
+                ],
               ),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate([
-              const SizedBox(height: 16.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  spacing: 8.0,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        widget.article.title ?? '-',
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(height: 1.2),
+              body: CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    floating: false,
+                    pinned: false,
+                    expandedHeight: MediaQuery.of(context).size.width * (9 / 16),
+                    automaticallyImplyLeading: false,
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: Container(
+                          color: Theme.of(context).colorScheme.secondary,
+                          child:
+                              state.article.urlToImage == ''
+                                  ? Image.asset('assets/images/newspaper.jpg', fit: BoxFit.cover)
+                                  : CachedNetworkImage(
+                                    imageUrl: state.article.urlToImage!,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) {
+                                      return FutureBuilder(
+                                        future: Future.delayed(const Duration(seconds: 3)),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState != ConnectionState.done) {
+                                            return const Center(child: CircularProgressIndicator());
+                                          } else {
+                                            return Image.asset('assets/images/newspaper.jpg', fit: BoxFit.cover);
+                                          }
+                                        },
+                                      );
+                                    },
+                                    errorWidget:
+                                        (context, url, error) =>
+                                            Image.asset('assets/images/newspaper.jpg', fit: BoxFit.cover),
+                                  ),
+                        ),
                       ),
                     ),
-                    // save article
-                    InkWell(
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      onTap: () {
-                        if (_offlinePresence != null) {
-                          _setOfflinePresence(!_offlinePresence!);
-                        }
-                      },
-                      child:
-                          _offlinePresence == null
-                              ? Icon(Icons.bookmark_border_rounded)
-                              : _offlinePresence!
-                              ? Icon(Icons.bookmark_rounded)
-                              : Icon(Icons.bookmark_border_rounded),
-                    ),
-                  ],
-                ),
+                  ),
+                  SliverList(
+                    delegate: SliverChildListDelegate([
+                      const SizedBox(height: 16.0),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          spacing: 12.0,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                widget.article.title ?? '-',
+                                style: Theme.of(context).textTheme.titleLarge!.copyWith(height: 1.2),
+                              ),
+                            ),
+
+                            // toggle article
+                            InkWell(
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap:
+                                  () => context.read<ArticleBloc>().add(
+                                    ArticleToggleEvent(
+                                      task: state.status == ArticleStatusEnum.saved ? 'delete' : 'save',
+                                      article: state.article,
+                                    ),
+                                  ),
+                              child:
+                                  _saved ? const Icon(Icons.bookmark_rounded) : const Icon(Icons.bookmark_border_rounded),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 16.0),
+
+                      // description
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Opacity(
+                          opacity: 0.8,
+                          child: Text(
+                            widget.article.description ?? '-',
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16.0),
+
+                      // content
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Opacity(
+                          opacity: 0.8,
+                          child: Text(
+                            widget.article.content ?? '-',
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16.0),
+
+                      // author
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.edit, size: 20.0, color: Colors.red),
+                            const SizedBox(width: 8.0),
+                            Row(
+                              children: [
+                                if (state.article.author != null) Text("${state.article.author!}, "),
+                                Text("${state.article.source!['name'] ?? '-'}"),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 16.0),
+
+                      // date
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          spacing: 8.0,
+                          children: [
+                            const Icon(Icons.date_range_outlined, size: 20.0, color: Colors.red),
+                            Text(AppFunctions.getFormattedLocalDateTime(widget.article.publishedAt!)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 80.0),
+                    ]),
+                  ),
+                ],
               ),
-
-              const SizedBox(height: 16.0),
-
-              // description
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Opacity(
-                  opacity: 0.8,
-                  child: Text(
-                    widget.article.description ?? '-',
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
+              bottomNavigationBar: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SizedBox(
+                  height: 45.0,
+                  child: ElevatedButton(
+                    onPressed: () => context.read<ArticleBloc>().add(ArticleReadMoreEvent(widget.article.url ?? '-')),
+                    child: const Text("Read More"),
                   ),
                 ),
               ),
-
-              const SizedBox(height: 16.0),
-
-              // content
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Opacity(
-                  opacity: 0.8,
-                  child: Text(
-                    widget.article.content ?? '-',
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(height: 1.4),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16.0),
-
-              // read more
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: InkWell(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  onTap: () {
-                    debugPrint("Read More");
-                  },
-                  child: Text(
-                    "Read More",
-                    style: Theme.of(context).textTheme.labelMedium!.copyWith(color: Colors.blueAccent),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16.0),
-
-              // author
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(spacing: 6.0, children: [Icon(Icons.edit, size: 16.0), Text("$author, $sourceName")]),
-              ),
-              const SizedBox(height: 80.0),
-            ]),
-          ),
-        ],
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          debugPrint("Share");
-        },
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        child: Icon(Icons.share, color: Theme.of(context).colorScheme.onPrimary),
-      ),
+            );
+          case ArticleErrorState():
+            return ArticleErrorWidget(article: state.article);
+          case ArticleLoadingState():
+          case ArticleInitial():
+          default:
+            return ArticleLoadingWidget();
+        }
+      },
     );
   }
 }

@@ -6,7 +6,7 @@ import 'package:samacharpatra/features/saved/data/repositories/saved_repository_
 class FetchAllArticlesUseCase {
   final SavedRepositoryImpl savedRepository;
 
-  FetchAllArticlesUseCase({required this.savedRepository});
+  FetchAllArticlesUseCase(this.savedRepository);
 
   Future<Either<Failure, List<ArticleEntity>>> call() async {
     return savedRepository.fetchAllArticles();

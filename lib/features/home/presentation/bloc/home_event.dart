@@ -7,7 +7,12 @@ sealed class HomeEvent {}
 final class HomeFetchEvent extends HomeEvent {}
 
 // load more articles
-final class HomeLoadMoreEvent extends HomeEvent {}
+final class HomeLoadMoreEvent extends HomeEvent {
+  final int page;
+  final List<ArticleEntity> oldArticles;
+
+  HomeLoadMoreEvent({required this.page, required this.oldArticles});
+}
 
 // view article :: navigate to article page
 final class HomeViewArticleNavigateEvent extends HomeEvent {

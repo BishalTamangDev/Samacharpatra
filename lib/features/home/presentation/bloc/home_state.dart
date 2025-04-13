@@ -13,7 +13,7 @@ final class HomeLoadingState extends HomeState {}
 final class HomeLoadedState extends HomeState {
   final List<ArticleEntity> articles;
 
-  HomeLoadedState({required this.articles});
+  HomeLoadedState(this.articles);
 }
 
 // empty article
@@ -45,6 +45,21 @@ final class HomeLoadMoreActionState extends HomeActionState {}
 // stop load more
 final class HomeStopLoadMoreActionState extends HomeActionState {}
 
+// update list
+final class HomeUpdateListActionState extends HomeActionState {
+  final List<ArticleEntity> articles;
+
+  HomeUpdateListActionState(this.articles);
+}
+
+// load more error
+final class HomeLoadMoreErrorActionState extends HomeActionState {
+  final bool status;
+  final String message;
+
+  HomeLoadMoreErrorActionState({required this.status, required this.message});
+}
+
 // view article :: navigate to article page
 final class HomeViewArticleNavigateActionState extends HomeActionState {
   final ArticleEntity articleEntity;
@@ -54,3 +69,9 @@ final class HomeViewArticleNavigateActionState extends HomeActionState {
 
 // navigate to api setup page
 final class HomeApiSetupNavigateActionState extends HomeActionState {}
+
+// reset values
+final class HomeResetValuesActionState extends HomeActionState {}
+
+// all caught up
+final class HomeAllCaughtUpActionState extends HomeActionState {}

@@ -11,7 +11,7 @@ class SearchInitialWidget extends StatelessWidget {
         child: Column(
           spacing: 16.0,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [Opacity(opacity: 0.6, child: Text("Feel free to search the article you like."))],
+          children: <Widget>[Opacity(opacity: 0.6, child: Text("Feel free to search the article you like."))],
         ),
       ),
     );

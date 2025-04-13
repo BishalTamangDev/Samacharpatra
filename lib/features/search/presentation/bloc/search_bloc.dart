@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:samacharpatra/core/errors/failures/failures.dart';
 import 'package:samacharpatra/features/search/business/usecases/search_usecase.dart';
@@ -20,18 +21,15 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   // search article
   Future<void> _searchArticleEvent(event, emit) async {
     emit(SearchingState(event.searchTitle));
-    debugPrint("Searching for ${event.searchTitle}");
 
     final SearchRepositoryImpl searchRepository = SearchRepositoryImpl();
     final SearchUseCase searchUseCase = SearchUseCase(searchRepository);
 
     // search article
-    final response = await searchUseCase.call(event.searchTitle);
-    debugPrint("Search completed");
+    final Either<Failure, List<ArticleEntity>> response = await searchUseCase.call(event.searchTitle);
 
     response.fold(
       (failure) {
-        debugPrint("Search Failure :: $failure");
         if (failure is ApiKeyNotSetFailure) {
           // api key not set
           emit(SearchApiKeyNotSetState());
@@ -51,7 +49,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         if (articles.isEmpty) {
           emit(SearchEmptyState());
         } else {
-          emit(SearchedState(articles: articles));
+          emit(SearchedState(articles));
         }
       },
     );

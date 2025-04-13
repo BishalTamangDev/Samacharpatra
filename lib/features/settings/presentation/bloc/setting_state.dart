@@ -14,15 +14,15 @@ sealed class SettingActionState extends SettingState {}
 final class SettingLoadedState extends SettingState {
   final String apiKey;
 
-  SettingLoadedState({required this.apiKey});
+  SettingLoadedState(this.apiKey);
 }
 
 // navigate to api setup page
-final class SettingApiSetupNavigateActionState extends SettingActionState {}
+final class SettingApiSetupNavActionState extends SettingActionState {}
 
-// reset saved list
-final class SettingResetSavedListResponseState extends SettingActionState {
+// response for delete saved articles
+final class SettingDeleteSavedArticlesRespActionState extends SettingActionState {
   final bool success;
 
-  SettingResetSavedListResponseState({required this.success});
+  SettingDeleteSavedArticlesRespActionState(this.success);
 }

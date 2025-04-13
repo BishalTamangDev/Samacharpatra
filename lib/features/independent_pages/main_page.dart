@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samacharpatra/features/home/presentation/pages/home_page.dart';
 import 'package:samacharpatra/features/saved/presentation/pages/saved_page.dart';
-import 'package:samacharpatra/features/setting/presentation/pages/setting_page.dart';
+import 'package:samacharpatra/features/settings/presentation/pages/setting_page.dart';
 
 import '../search/presentation/pages/search_page.dart';
 
@@ -36,10 +36,10 @@ class _MainPageState extends State<MainPage> {
               _currentIndex = newIndex;
             }),
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search_rounded), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark_border_rounded), label: 'Saved'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings_rounded), label: 'Setting'),
+          BottomNavigationBarItem(icon: const Icon(Icons.home_rounded), label: 'Home'),
+          BottomNavigationBarItem(icon: const Icon(Icons.search_rounded), label: 'Search'),
+          BottomNavigationBarItem(icon: const Icon(Icons.bookmark_border_rounded), label: 'Saved'),
+          BottomNavigationBarItem(icon: const Icon(Icons.settings_rounded), label: 'Setting'),
         ],
       ),
     );

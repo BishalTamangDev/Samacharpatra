@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:samacharpatra/core/business/entities/article_entity.dart';
 
 class ArticleModel extends ArticleEntity {
@@ -81,5 +83,35 @@ class ArticleModel extends ArticleEntity {
       content: content,
       saved: saved,
     );
+  }
+
+  // from local data
+  factory ArticleModel.fromLocal(Map<String, dynamic> json) {
+    return ArticleModel(
+      id: json['article_id'] ?? 0,
+      source: jsonDecode(json['source']),
+      author: json['author'],
+      title: json['title'],
+      description: json['description'],
+      url: json['url'],
+      urlToImage: json['urlToImage'],
+      publishedAt: json['publishedAt'],
+      content: json['content'],
+      saved: json['saved'] ?? true,
+    );
+  }
+
+  // to local data
+  Map<String, dynamic> toLocal() {
+    return {
+      'source': jsonEncode(source),
+      'author': author,
+      'title': title,
+      'description': description,
+      'url': url,
+      'urlToImage': urlToImage,
+      'publishedAt': publishedAt,
+      'content': content,
+    };
   }
 }

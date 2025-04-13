@@ -40,3 +40,6 @@ final class LogicFailure extends Failure {}
 
 // unknown failure
 final class UnknownFailure extends Failure {}
+
+// shared prefs failure
+final class SharedPreferencesFailure extends Failure {}

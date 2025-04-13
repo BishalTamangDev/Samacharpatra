@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 
 class OnboardingOptionWidget extends StatelessWidget {
   const OnboardingOptionWidget({
@@ -24,9 +23,6 @@ class OnboardingOptionWidget extends StatelessWidget {
         children: [
           // image
           if (['png', 'jpg'].contains(type)) Image.asset(image, width: MediaQuery.of(context).size.width / 3),
-
-          if (type == 'json')
-            Lottie.asset(image, width: MediaQuery.of(context).size.width / 2, filterQuality: FilterQuality.low),
 
           const SizedBox(height: 32.0),
 

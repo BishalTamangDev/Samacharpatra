@@ -7,6 +7,6 @@ class HomeLoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverToBoxAdapter(child: Column(children: List.generate(3, (index) => LoadingArticleWidget())));
+    return SliverToBoxAdapter(child: Column(children: List.generate(3, (index) => const LoadingArticleWidget())));
   }
 }

@@ -6,7 +6,7 @@ import 'package:samacharpatra/features/home/business/repositories/home_repositor
 
 class HomeRepositoryImpl implements HomeRepository {
   @override
-  Future<Either<Failure, List<ArticleEntity>>> fetchArticles() async {
-    return await ApiService().fetchArticles();
+  Future<Either<Failure, List<ArticleEntity>>> fetchArticles({int page = 1}) async {
+    return await ApiService().fetchArticles(page: page);
   }
 }

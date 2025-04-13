@@ -50,9 +50,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     {
       'title': 'GET STARTED NOW',
       'description': "You're one step behind exploring new things.",
-      // 'image': 'assets/animations/get_started.json',
-      // 'type': 'json',
-      'image': 'assets/icons/save.png',
+      'image': 'assets/icons/get_started.png',
       'type': 'png',
     },
   ];
@@ -62,11 +60,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Future<void> _nextPage() async {
     _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.linear);
     if (_currentIndex == _features.length - 1) {
-      final prefs = await SharedPreferences.getInstance();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboarding_screen_shown', true);
       if (!mounted) return;
       context.pushReplacement('/main');
     } else {
+      if (!mounted) return;
       setState(() {
         _currentIndex++;
       });
@@ -75,6 +74,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   // set page
   void _setPage(newIndex) {
+    if (!mounted) return;
     setState(() {
       _currentIndex = newIndex;
     });
@@ -82,8 +82,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   void initState() {
-    _pageController = PageController();
     super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override

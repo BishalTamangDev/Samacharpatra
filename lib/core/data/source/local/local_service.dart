@@ -2,9 +2,10 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart';
 import 'package:samacharpatra/core/business/entities/article_entity.dart';
-import 'package:samacharpatra/core/data/models/article_model.dart';
 import 'package:samacharpatra/core/errors/failures/failures.dart';
 import 'package:sqflite/sqflite.dart';
+
+import '../../models/article_model.dart';
 
 class LocalService {
   // private constructor
@@ -25,10 +26,10 @@ class LocalService {
   // open database & create table
   static Future<Database?> _initializeDatabase() async {
     try {
-      int version = 1;
+      final int version = 1;
 
       // database path
-      String path = join(await getDatabasesPath(), databaseName);
+      final String path = join(await getDatabasesPath(), databaseName);
 
       return await openDatabase(
         path,
@@ -66,7 +67,7 @@ class LocalService {
   // fetch articles
   Future<Either<Failure, List<ArticleEntity>>> fetchArticles() async {
     try {
-      final db = await getDatabase();
+      final Database db = await getDatabase();
 
       final String query = '''
         SELECT * FROM $articleTbl
@@ -74,9 +75,7 @@ class LocalService {
 
       final data = await db.rawQuery(query);
 
-      final List<ArticleEntity> articles = data.map((datum) => ArticleModel.fromJson(datum).toEntity()).toList();
-
-      debugPrint("Saved articles :: $data");
+      final List<ArticleEntity> articles = data.map((datum) => ArticleModel.fromLocal(datum).toEntity()).toList();
 
       return Right(articles);
     } catch (e, stackTrace) {
@@ -86,17 +85,60 @@ class LocalService {
   }
 
   // search article if saved
-  Future<bool> checkPresence(String url) async {
-    return false;
+  Future<bool> isSaved(String url) async {
+    try {
+      final Database db = await getDatabase();
+
+      final articles = await db.query(articleTbl, where: "url = ?", whereArgs: [url]);
+
+      return articles.isEmpty ? false : true;
+    } catch (e, stackTrace) {
+      debugPrint("Error check article if saved :: $e\n$stackTrace");
+      return false;
+    }
   }
 
   // save article
-  Future<bool> unSave(int id) async {
-    return true;
+  Future<bool> save(ArticleEntity article) async {
+    try {
+      final Database db = await getDatabase();
+
+      final Map<String, dynamic> data = ArticleModel.fromEntity(article).toLocal();
+
+      final int rowsAffected = await db.insert(articleTbl, data);
+
+      return rowsAffected > 0;
+    } catch (e, stackTrace) {
+      debugPrint("Error saving article :: $e\n$stackTrace");
+      return false;
+    }
   }
 
   // un-save article
-  Future<bool> save(ArticleEntity article) async {
-    return true;
+  Future<bool> delete(ArticleEntity article) async {
+    try {
+      final Database db = await getDatabase();
+
+      final int rowsAffected = await db.delete(articleTbl, where: "url = ?", whereArgs: [article.url]);
+
+      return rowsAffected > 0;
+    } catch (e, stackTrace) {
+      debugPrint("Error deleting article :: $e\n$stackTrace");
+      return false;
+    }
+  }
+
+  // delete all saved articles
+  Future<bool> deleteAll() async {
+    try {
+      Database db = await getDatabase();
+
+      await db.delete(articleTbl);
+
+      return true;
+    } catch (e, stackTrace) {
+      debugPrint("Error deleting saved articles :: $e\n$stackTrace");
+      return false;
+    }
   }
 }

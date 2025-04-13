@@ -16,7 +16,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
   // fetch theme data
   Future<void> _themeFetchEvent(ThemeFetchEvent event, Emitter<ThemeState> emit) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String themeSourceStr = prefs.getString('theme_source') ?? ThemeSourceEnum.system.label;
       final bool darkMode = prefs.getBool('dark_mode') ?? false;
 
@@ -30,8 +30,6 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
               : ThemeMode.light;
 
       emit(ThemeLoadedState(themeSource: themeSource, darkMode: darkMode, themeMode: themeMode));
-
-      debugPrint("Initial theme :: themeSource - $themeSource, darkMode - $darkMode");
     } catch (e, stackTrace) {
       debugPrint("Error fetching theme data :: $e\n$stackTrace");
     }
@@ -40,9 +38,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
   // update theme data
   Future<void> _themeUpdateEvent(ThemeUpdateEvent event, Emitter<ThemeState> emit) async {
     try {
-      debugPrint("To be updated :: ThemeSource :: ${event.themeSource}, darkMode :: ${event.darkMode}");
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
 
       // set theme source
       await prefs.setString('theme_source', event.themeSource.label);
@@ -58,7 +54,6 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
               : ThemeMode.light;
 
       emit(ThemeLoadedState(themeSource: event.themeSource, darkMode: event.darkMode, themeMode: themeMode));
-      debugPrint("Theme updated: ${event.themeSource}, Dark Mode: ${event.darkMode}");
     } catch (e, stackTrace) {
       debugPrint("Error updating theme :: $e\n$stackTrace");
     }

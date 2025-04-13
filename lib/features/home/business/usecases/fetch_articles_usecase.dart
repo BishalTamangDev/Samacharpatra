@@ -8,7 +8,7 @@ class FetchArticlesUseCase {
 
   FetchArticlesUseCase(this.homeRepository);
 
-  Future<Either<Failure, List<ArticleEntity>>> call() async {
-    return await homeRepository.fetchArticles();
+  Future<Either<Failure, List<ArticleEntity>>> call({int page = 1}) async {
+    return await homeRepository.fetchArticles(page: page);
   }
 }

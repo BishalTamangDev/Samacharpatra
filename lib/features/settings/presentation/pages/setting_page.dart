@@ -3,18 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:samacharpatra/core/constants/app_constants.dart';
 import 'package:samacharpatra/core/functions/app_functions.dart';
-import 'package:samacharpatra/features/setting/presentation/bloc/setting_bloc.dart';
+import 'package:samacharpatra/features/api_key_setup/presentation/bloc/api_key_bloc.dart';
+import 'package:samacharpatra/features/saved/presentation/bloc/saved_bloc.dart';
+import 'package:samacharpatra/features/settings/presentation/bloc/setting_bloc.dart';
 import 'package:samacharpatra/features/theme/presentation/bloc/theme_bloc.dart';
 import 'package:samacharpatra/shared/widgets/custom_alert_dialog_widget.dart';
 
-class SettingPage extends StatefulWidget {
+class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
 
-  @override
-  State<SettingPage> createState() => _SettingPageState();
-}
-
-class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,8 +20,16 @@ class _SettingPageState extends State<SettingPage> {
         listenWhen: (previous, current) => current is SettingActionState,
         buildWhen: (previous, current) => current is! SettingActionState,
         listener: (context, state) {
-          if (state is SettingApiSetupNavigateActionState) {
+          if (state is SettingApiSetupNavActionState) {
+            context.read<ApiKeyBloc>().add(ApiKeyFetchEvent());
             context.push('/setting/api-key-setup');
+          } else if (state is SettingDeleteSavedArticlesRespActionState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: state.success ? const Text("Reset Successful.") : const Text("Couldn't reset.")),
+            );
+            if (state.success) {
+              context.read<SavedBloc>().add(SavedFetchEvent());
+            }
           }
         },
         builder: (context, state) {
@@ -44,7 +49,7 @@ class _SettingPageState extends State<SettingPage> {
                         child: Opacity(
                           opacity: 0.6,
                           child: Text(
-                            state.apiKey != '' ? state.apiKey : "You haven't set the api key",
+                            state.apiKey != '' ? state.apiKey : "You haven't set your api key",
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ),
@@ -144,7 +149,10 @@ class _SettingPageState extends State<SettingPage> {
                               description: 'Do you want to delete all the saved articles?',
                               option1: 'Yes',
                               option2: 'No',
-                              option1CallBack: () => debugPrint("Delete Article"),
+                              option1CallBack: () {
+                                context.pop();
+                                context.read<SettingBloc>().add(SettingDeleteSavedArticlesEvent());
+                              },
                               option2CallBack: () => context.pop(),
                             );
                           },
@@ -170,7 +178,7 @@ class _SettingPageState extends State<SettingPage> {
                 ),
               );
             default:
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
           }
         },
       ),

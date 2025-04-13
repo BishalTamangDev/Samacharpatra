@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:samacharpatra/core/business/entities/article_entity.dart';
 import 'package:samacharpatra/core/errors/failures/failures.dart';
@@ -20,17 +21,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   // fetch articles
   Future<void> _homeFetchEvent(HomeFetchEvent event, Emitter<HomeState> emit) async {
     emit(HomeLoadingState());
+    await Future.delayed(const Duration(milliseconds: 100));
 
-    await Future.delayed(const Duration(seconds: 2));
+    emit(HomeResetValuesActionState());
 
     final HomeRepositoryImpl homeRepository = HomeRepositoryImpl();
     final FetchArticlesUseCase fetchArticlesUseCase = FetchArticlesUseCase(homeRepository);
 
-    final response = await fetchArticlesUseCase.call();
+    final Either<Failure, List<ArticleEntity>> response = await fetchArticlesUseCase.call();
 
     response.fold(
       (failure) {
-        debugPrint("Failure :: $failure");
         if (failure is UnauthorizedApiKeyFailure) {
           emit(HomeUnauthorizedApiKeyState());
         } else if (failure is ApiKeyNotSetFailure) {
@@ -45,7 +46,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         if (data.isEmpty) {
           emit(HomeEmptyState());
         } else {
-          emit(HomeLoadedState(articles: data));
+          emit(HomeLoadedState(data));
+          // add delay
+          emit(HomeUpdateListActionState(data));
         }
       },
     );
@@ -54,8 +57,36 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   // load more articles
   Future<void> _homeLoadMoreEvent(HomeLoadMoreEvent event, Emitter<HomeState> emit) async {
     emit(HomeLoadMoreActionState());
-    await Future.delayed(const Duration(seconds: 3));
-    emit(HomeStopLoadMoreActionState());
+
+    final HomeRepositoryImpl homeRepository = HomeRepositoryImpl();
+    final FetchArticlesUseCase fetchArticlesUseCase = FetchArticlesUseCase(homeRepository);
+
+    final Either<Failure, List<ArticleEntity>> response = await fetchArticlesUseCase.call(page: event.page);
+
+    if (response.isLeft()) {
+      emit(HomeStopLoadMoreActionState());
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(HomeLoadMoreErrorActionState(status: false, message: "Something went wrong."));
+      return;
+    }
+
+    final List<ArticleEntity> data = response.getOrElse(() => []);
+
+    if (data.isEmpty) {
+      // all caught up
+      emit(HomeStopLoadMoreActionState());
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(HomeAllCaughtUpActionState());
+    } else {
+      emit(HomeStopLoadMoreActionState());
+
+      final List<ArticleEntity> finalData = event.oldArticles;
+      finalData.addAll(data.toList());
+
+      emit(HomeLoadedState(finalData));
+      await Future.delayed(const Duration(milliseconds: 100));
+      emit(HomeUpdateListActionState(data));
+    }
   }
 
   // view article

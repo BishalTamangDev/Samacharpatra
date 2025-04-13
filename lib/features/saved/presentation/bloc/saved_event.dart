@@ -10,19 +10,19 @@ final class SavedFetchEvent extends SavedEvent {}
 final class SavedSaveArticleEvent extends SavedEvent {
   final ArticleEntity article;
 
-  SavedSaveArticleEvent({required this.article});
+  SavedSaveArticleEvent(this.article);
 }
 
 // un-save
 final class SavedUnSaveArticleEvent extends SavedEvent {
   final int id;
 
-  SavedUnSaveArticleEvent({required this.id});
+  SavedUnSaveArticleEvent(this.id);
 }
 
 // view article
 final class SavedViewArticleEvent extends SavedEvent {
   final ArticleEntity article;
 
-  SavedViewArticleEvent({required this.article});
+  SavedViewArticleEvent(this.article);
 }

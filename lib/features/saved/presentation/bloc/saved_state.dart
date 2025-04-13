@@ -13,7 +13,7 @@ final class SavedLoadingState extends SavedState {}
 final class SavedLoadedState extends SavedState {
   final List<ArticleEntity> articles;
 
-  SavedLoadedState({required this.articles});
+  SavedLoadedState(this.articles);
 }
 
 // error
@@ -29,5 +29,5 @@ final class SavedActionState extends SavedState {}
 final class SavedViewNavigateActionState extends SavedActionState {
   final ArticleEntity article;
 
-  SavedViewNavigateActionState({required this.article});
+  SavedViewNavigateActionState(this.article);
 }

@@ -13,7 +13,7 @@ class InitialPage extends StatefulWidget {
 class _InitialPageState extends State<InitialPage> {
   // functions
   void _checkData() async {
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     final bool onboardingShown = prefs.getBool('onboarding_screen_shown') ?? false;
     if (!mounted) return;
     if (onboardingShown) {

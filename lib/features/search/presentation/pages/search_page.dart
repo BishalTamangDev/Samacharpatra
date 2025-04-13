@@ -8,6 +8,7 @@ import 'package:samacharpatra/features/search/presentation/widgets/search_invali
 import 'package:samacharpatra/features/search/presentation/widgets/search_searching_widget.dart';
 
 import '../../../../shared/widgets/article_widget.dart';
+import '../../../api_key_setup/presentation/bloc/api_key_bloc.dart';
 import '../bloc/search_bloc.dart';
 import '../widgets/search_api_key_not_set_widget.dart';
 
@@ -24,12 +25,19 @@ class _SearchPageState extends State<SearchPage> {
   final TextEditingController searchController = TextEditingController();
 
   @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 1,
         backgroundColor: Theme.of(context).colorScheme.surface,
         title: TextField(
-          autofocus: true,
+          // autofocus: true,
           controller: searchController,
           decoration: InputDecoration(
             isDense: true,
@@ -42,7 +50,7 @@ class _SearchPageState extends State<SearchPage> {
                     ? null
                     : IconButton(
                       onPressed: () => context.read<SearchBloc>().add(SearchResetEvent()),
-                      icon: Icon(Icons.close),
+                      icon: const Icon(Icons.close),
                     ),
           ),
           onChanged: (newValue) {
@@ -63,6 +71,7 @@ class _SearchPageState extends State<SearchPage> {
         buildWhen: (previous, current) => current is! SearchActionState,
         listener: (context, state) {
           if (state is SearchApiKeySetupNavigateActionState) {
+            context.read<ApiKeyBloc>().add(ApiKeyFetchEvent());
             context.push('/setting/api-key-setup');
           } else if (state is SearchResetActionState) {
             searchController.clear();
@@ -71,17 +80,17 @@ class _SearchPageState extends State<SearchPage> {
         builder: (context, state) {
           switch (state) {
             case SearchInitial():
-              return SearchInitialWidget();
+              return const SearchInitialWidget();
             case SearchingState():
               return SearchSearchingWidget(searchTitle: state.searchTitle);
             case SearchInvalidApiKeyState():
-              return SearchInvalidApiKeyWidget();
+              return const SearchInvalidApiKeyWidget();
             case SearchEmptyState():
               return SearchEmptyWidget();
             case SearchApiKeyNotSetState():
-              return SearchApiKeyNotSetWidget();
+              return const SearchApiKeyNotSetWidget();
             case SearchErrorState():
-              return SearchErrorWidget();
+              return const SearchErrorWidget();
             case SearchedState():
               return ListView.builder(
                 shrinkWrap: true,

@@ -16,7 +16,7 @@ final class SearchingState extends SearchState {
 final class SearchedState extends SearchState {
   final List<ArticleEntity> articles;
 
-  SearchedState({required this.articles});
+  SearchedState(this.articles);
 }
 
 // empty

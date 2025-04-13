@@ -2,16 +2,21 @@ import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:samacharpatra/core/business/entities/article_entity.dart';
+import 'package:samacharpatra/core/constants/app_constants.dart';
 import 'package:samacharpatra/core/scroll_behaviour/custom_scroll_behaviour.dart';
 import 'package:samacharpatra/features/home/presentation/bloc/home_bloc.dart';
 import 'package:samacharpatra/features/home/presentation/widgets/home_api_key_not_set_widget.dart';
 import 'package:samacharpatra/features/home/presentation/widgets/home_empty_widget.dart';
+import 'package:samacharpatra/features/home/presentation/widgets/home_load_more_error_widget.dart';
+import 'package:samacharpatra/features/home/presentation/widgets/home_loading_more_widget.dart';
 import 'package:samacharpatra/features/home/presentation/widgets/home_loading_widget.dart';
+import 'package:samacharpatra/features/home/presentation/widgets/home_max_page_reached_widget.dart';
 import 'package:samacharpatra/features/home/presentation/widgets/home_network_issue_widget.dart';
 import 'package:samacharpatra/features/home/presentation/widgets/home_unauthorized_api_key_widget.dart';
 import 'package:samacharpatra/shared/widgets/article_widget.dart';
-import 'package:samacharpatra/shared/widgets/loading_article_widget.dart';
 
+import '../../../api_key_setup/presentation/bloc/api_key_bloc.dart';
 import '../widgets/home_error_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,19 +28,53 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   // variables
-  bool _loading = false;
+  int page = 2;
+  bool loading = false;
+  bool loadMoreError = false;
+  bool maxPageReached = false;
   final ScrollController _scrollController = ScrollController();
 
+  List<ArticleEntity> articleList = [];
+
   // functions
-  Future<void> _loadMore() async {
+  void _loadMore() {
+    if (!mounted) return;
+
     setState(() {
-      _loading = true;
+      loading = true;
     });
   }
 
-  Future<void> _stopLoadMore() async {
+  void _stopLoadMore() {
+    if (!mounted) return;
+
     setState(() {
-      _loading = false;
+      loading = false;
+    });
+  }
+
+  // reset values
+  void _resetValues() {
+    if (!mounted) return;
+    setState(() {
+      page = 2;
+      loadMoreError = false;
+      articleList.clear();
+      maxPageReached = false;
+    });
+  }
+
+  // update values
+  void _updateValues(List<ArticleEntity> newArticles) {
+    if (!mounted) return;
+    setState(() {
+      page++;
+      articleList.addAll(newArticles);
+      loadMoreError = false;
+      if (page == AppConstants.maxPage) {
+        maxPageReached = true;
+        debugPrint("Max page reached");
+      }
     });
   }
 
@@ -44,8 +83,12 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-        if (_loading == false) {
-          context.read<HomeBloc>().add(HomeLoadMoreEvent());
+        if (!loading && !maxPageReached) {
+          if (!mounted) return;
+          setState(() {
+            loadMoreError = false;
+          });
+          context.read<HomeBloc>().add(HomeLoadMoreEvent(page: page, oldArticles: articleList));
         }
       }
     });
@@ -75,7 +118,6 @@ class _HomePageState extends State<HomePage> {
               listenWhen: (previous, current) => current is HomeActionState,
               buildWhen: (previous, current) => current is! HomeActionState,
               listener: (context, state) {
-                debugPrint("Home state :: ${state.runtimeType}");
                 if (state is HomeViewArticleNavigateActionState) {
                   context.push('/article', extra: state.articleEntity);
                 } else if (state is HomeLoadMoreActionState) {
@@ -83,7 +125,24 @@ class _HomePageState extends State<HomePage> {
                 } else if (state is HomeStopLoadMoreActionState) {
                   _stopLoadMore();
                 } else if (state is HomeApiSetupNavigateActionState) {
+                  context.read<ApiKeyBloc>().add(ApiKeyFetchEvent());
                   context.push('/setting/api-key-setup');
+                } else if (state is HomeUpdateListActionState) {
+                  _updateValues(state.articles);
+                } else if (state is HomeLoadMoreErrorActionState) {
+                  _stopLoadMore();
+                  if (!mounted) return;
+                  setState(() {
+                    loadMoreError = true;
+                  });
+                } else if (state is HomeResetValuesActionState) {
+                  _resetValues();
+                } else if (state is HomeAllCaughtUpActionState) {
+                  if (!mounted) return;
+
+                  setState(() {
+                    maxPageReached = true;
+                  });
                 }
               },
               builder: (context, state) {
@@ -111,7 +170,14 @@ class _HomePageState extends State<HomePage> {
               },
             ),
 
-            SliverToBoxAdapter(child: _loading ? LoadingArticleWidget() : SizedBox.shrink()),
+            // loading more articles
+            SliverToBoxAdapter(child: loading ? const HomeLoadingMoreWidget() : const SizedBox.shrink()),
+
+            // error in loading more articles
+            SliverToBoxAdapter(child: !loadMoreError ? const SizedBox.shrink() : const HomeLoadMoreErrorWidget()),
+
+            // max page reached
+            SliverToBoxAdapter(child: !maxPageReached ? const SizedBox.shrink() : const HomeMaxPageReachedWidget()),
           ],
         ),
       ),

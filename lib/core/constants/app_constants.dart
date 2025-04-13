@@ -1,3 +1,4 @@
+// theme source
 enum ThemeSourceEnum {
   system,
   custom;
@@ -19,4 +20,11 @@ enum ThemeSourceEnum {
         return ThemeSourceEnum.system;
     }
   }
+}
+
+// article saved
+enum ArticleStatusEnum { error, unknown, saved, deleted, alreadySaved, alreadyDeleted }
+
+class AppConstants {
+  static final int maxPage = 5;
 }
