@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:samacharpatra/core/utils/date_time_utils.dart';
 import 'package:samacharpatra/features/article/presentation/bloc/article_bloc.dart';
 import 'package:samacharpatra/features/article/presentation/widgets/article_error_widget.dart';
 import 'package:samacharpatra/features/article/presentation/widgets/article_loading_widget.dart';
@@ -11,8 +12,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/business/entities/article_entity.dart';
-import '../../../../core/constants/app_constants.dart';
-import '../../../../core/functions/app_functions.dart';
+import '../../../../core/constants/article_status_enum.dart';
 
 class ArticlePage extends StatefulWidget {
   const ArticlePage({super.key, required this.article});
@@ -211,7 +211,7 @@ class _ArticlePageState extends State<ArticlePage> {
                           spacing: 8.0,
                           children: [
                             const Icon(Icons.date_range_outlined, size: 20.0, color: Colors.red),
-                            Text(AppFunctions.getFormattedLocalDateTime(widget.article.publishedAt!)),
+                            Text(DateTimeUtils.getFormattedLocalDateTime(widget.article.publishedAt!)),
                           ],
                         ),
                       ),
@@ -220,13 +220,15 @@ class _ArticlePageState extends State<ArticlePage> {
                   ),
                 ],
               ),
-              bottomNavigationBar: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SizedBox(
-                  height: 45.0,
-                  child: ElevatedButton(
-                    onPressed: () => context.read<ArticleBloc>().add(ArticleReadMoreEvent(widget.article.url ?? '-')),
-                    child: const Text("Read More"),
+              bottomNavigationBar: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    height: 45.0,
+                    child: ElevatedButton(
+                      onPressed: () => context.read<ArticleBloc>().add(ArticleReadMoreEvent(widget.article.url ?? '-')),
+                      child: const Text("Read More"),
+                    ),
                   ),
                 ),
               ),

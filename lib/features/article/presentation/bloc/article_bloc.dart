@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:samacharpatra/core/constants/app_constants.dart';
 import 'package:samacharpatra/core/data/source/local/local_service.dart';
 import 'package:samacharpatra/features/article/business/usecases/toggle_article_status_usecase.dart';
 import 'package:samacharpatra/features/article/data/repository/article_repository.dart';
 
 import '../../../../core/business/entities/article_entity.dart';
+import '../../../../core/constants/article_status_enum.dart';
 
 part 'article_event.dart';
 part 'article_state.dart';

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:samacharpatra/core/constants/app_constants.dart';
-import 'package:samacharpatra/core/functions/app_functions.dart';
+import 'package:samacharpatra/core/utils/string_utils.dart';
 import 'package:samacharpatra/features/api_key_setup/presentation/bloc/api_key_bloc.dart';
 import 'package:samacharpatra/features/saved/presentation/bloc/saved_bloc.dart';
 import 'package:samacharpatra/features/settings/presentation/bloc/setting_bloc.dart';
 import 'package:samacharpatra/features/theme/presentation/bloc/theme_bloc.dart';
 import 'package:samacharpatra/shared/widgets/custom_alert_dialog_widget.dart';
+
+import '../../../../core/constants/theme_source_enum.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
@@ -94,7 +95,7 @@ class SettingPage extends StatelessWidget {
                                       ...ThemeSourceEnum.values.map(
                                         (themeSource) => DropdownMenuItem(
                                           value: themeSource,
-                                          child: Text(AppFunctions.getSentenceCase(themeSource.label)),
+                                          child: Text(StringUtils.getSentenceCase(themeSource.label)),
                                         ),
                                       ),
                                     ],

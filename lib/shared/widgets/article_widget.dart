@@ -2,12 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:samacharpatra/core/business/entities/article_entity.dart';
-import 'package:samacharpatra/core/constants/app_constants.dart';
 import 'package:samacharpatra/core/data/source/local/local_service.dart';
-import 'package:samacharpatra/core/functions/app_functions.dart';
 import 'package:samacharpatra/features/article/presentation/bloc/article_bloc.dart';
 import 'package:samacharpatra/features/home/presentation/bloc/home_bloc.dart';
 import 'package:samacharpatra/features/saved/presentation/bloc/saved_bloc.dart';
+
+import '../../core/constants/article_status_enum.dart';
+import '../../core/utils/article_status_util.dart';
 
 class ArticleWidget extends StatefulWidget {
   const ArticleWidget({super.key, required this.articleEntity, this.isForSavedArticle = false});
@@ -39,7 +40,7 @@ class _ArticleWidgetState extends State<ArticleWidget> {
     if (_saved == null) return;
     final String task = _saved! ? 'delete' : 'save';
 
-    final ArticleStatusEnum status = await AppFunctions.toggleArticleStatus(task: task, article: widget.articleEntity);
+    final ArticleStatusEnum status = await toggleArticleStatus(task: task, article: widget.articleEntity);
 
     switch (status) {
       case ArticleStatusEnum.error:

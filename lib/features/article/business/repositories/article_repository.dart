@@ -1,6 +1,5 @@
-import 'package:samacharpatra/core/constants/app_constants.dart';
-
 import '../../../../core/business/entities/article_entity.dart';
+import '../../../../core/constants/article_status_enum.dart';
 
 abstract class ArticleRepository {
   // toggle article status

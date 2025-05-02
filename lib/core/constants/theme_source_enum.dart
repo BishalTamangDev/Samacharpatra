@@ -21,10 +21,3 @@ enum ThemeSourceEnum {
     }
   }
 }
-
-// article saved
-enum ArticleStatusEnum { error, unknown, saved, deleted, alreadySaved, alreadyDeleted }
-
-class AppConstants {
-  static final int maxPage = 5;
-}

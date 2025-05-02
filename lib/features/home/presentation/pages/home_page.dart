@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:samacharpatra/core/business/entities/article_entity.dart';
-import 'package:samacharpatra/core/constants/app_constants.dart';
+import 'package:samacharpatra/core/constants/numeric_constants.dart';
 import 'package:samacharpatra/core/scroll_behaviour/custom_scroll_behaviour.dart';
 import 'package:samacharpatra/features/home/presentation/bloc/home_bloc.dart';
 import 'package:samacharpatra/features/home/presentation/widgets/home_api_key_not_set_widget.dart';
@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
       page++;
       articleList.addAll(newArticles);
       loadMoreError = false;
-      if (page == AppConstants.maxPage) {
+      if (page == NumericConstants.maxPage) {
         maxPageReached = true;
         debugPrint("Max page reached");
       }
